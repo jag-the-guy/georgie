@@ -7,6 +7,8 @@ import { FolderPage } from './pages/FolderPage';
 import { SearchPage } from './pages/SearchPage';
 import { Study } from './pages/Study';
 import { Browse } from './pages/Browse';
+import { ImportPage } from './pages/Import';
+import { NotesPage } from './pages/Notes';
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -39,6 +41,8 @@ export function App() {
             <Route path="study/:id" element={<Study />} />
             <Route path="browse/:id" element={<Browse />} />
             <Route path="search" element={<SearchPage />} />
+            <Route path="import" element={<ImportPage />} />
+            <Route path="notes" element={<NotesPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

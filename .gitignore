@@ -8,3 +8,11 @@ flashcard app reference.webp
 
 # Local editor/preview tooling
 .claude
+
+# Demo data and sample files for the local preview copy
+preview
+
+# Secrets (API keys): never commit
+.env
+.env.*
+!.env.example

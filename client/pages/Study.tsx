@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Clock, PartyPopper } from 'lucide-react';
 import { api } from '../api';
@@ -9,6 +9,8 @@ import { previewIntervals } from '../../shared/formatInterval';
 import { useAuth, useFolders } from '../state';
 import { CardEditor } from '../components/CardEditor';
 import { FlipCard } from '../components/FlipCard';
+import { ResultPanel, TypeBox, TypeModeSwitch, useTypeMode } from '../components/TypeAnswer';
+import { canTypeAnswer, checkAnswer, pickMessage, suggestedRating, type AnswerCheck } from '../../shared/answerMatch';
 import { Lightbox } from '../components/ui';
 
 const formatNextDue = (ms: number) => {
@@ -48,6 +50,11 @@ export function Study() {
   const [zoom, setZoom] = useState<string | null>(null);
   const [reviewed, setReviewed] = useState(0);
 
+  // "Type my answer": what was typed, how it was judged, and the message shown. Cleared for every new card.
+  const [typeMode, setTypeMode] = useTypeMode();
+  const [result, setResult] = useState<{ typed: string; check: AnswerCheck; message: string } | null>(null);
+  const lastMessage = useRef<string | undefined>(undefined);
+
   const config = useMemo(() => makeConfig({ timezone: user!.timezone }), [user]);
   const card: Card | null = state && !state.done ? state.card : null;
 
@@ -59,6 +66,7 @@ export function Study() {
     setState(next);
     setFlipped(false);
     setSeenAnswer(false);
+    setResult(null);
   }, []);
 
   const flip = useCallback(() => {
@@ -84,6 +92,22 @@ export function Study() {
       clearTimeout(fetchAt);
     };
   }, [waitingUntil, state, folderId, apply]);
+
+  const typing = typeMode && card !== null && canTypeAnswer(card.front, card.back);
+
+  // Judge what was typed, show the back of the card, and suggest (but never choose) a rating.
+  const submitTyped = useCallback(
+    (typed: string) => {
+      if (!card) return;
+      const check = checkAnswer(typed, card.back);
+      const message = pickMessage(check.verdict, lastMessage.current);
+      lastMessage.current = message;
+      setResult({ typed, check, message });
+      setFlipped(true);
+      setSeenAnswer(true);
+    },
+    [card],
+  );
 
   // Interval previews use the same pure scheduler as the server.
   const previews = useMemo(() => (card ? previewIntervals(card, Date.now(), config) : null), [card, config, seenAnswer]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -135,6 +159,7 @@ export function Study() {
           <ArrowLeft size={18} />
         </button>
         <h1 title={title}>{title}</h1>
+        <TypeModeSwitch on={typeMode} onChange={setTypeMode} />
         {counts && (
           <div className="counts" aria-label="Cards remaining">
             <span className="n" title="New">{counts.new}</span>
@@ -188,24 +213,36 @@ export function Study() {
           {/* Keyed so each new card mounts already facing the front: no flip back, and no peek at the next answer. */}
           <FlipCard key={`${card.id}-${reviewed}`} card={card} flipped={flipped} onFlip={flip} onEdit={() => setEditing(true)} onZoom={setZoom} />
 
+          {typing && !seenAnswer && (
+            <TypeBox key={`${card.id}-${reviewed}`} onCheck={submitTyped} onGiveUp={() => submitTyped('')} />
+          )}
+          {result && <ResultPanel check={result.check} message={result.message} typed={result.typed} />}
+
           <div className="study-actions">
             {seenAnswer ? (
               <div className="ratings">
-                {RATINGS.map((r) => (
-                  <button key={r} className={`rate rate-${r}`} onClick={() => rate(r)} disabled={busy}>
-                    {RATING_LABELS[r]}
-                    <small>{previews[r]}</small>
-                    <kbd>{r}</kbd>
-                  </button>
-                ))}
+                {RATINGS.map((r) => {
+                  const suggested = result !== null && suggestedRating(result.check.verdict) === r;
+                  return (
+                    <button key={r} className={`rate rate-${r} ${suggested ? 'suggested' : ''}`} onClick={() => rate(r)} disabled={busy}>
+                      {suggested && <span className="suggested-tag">Suggested</span>}
+                      {RATING_LABELS[r]}
+                      <small>{previews[r]}</small>
+                      <kbd>{r}</kbd>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
-              <button className="btn reveal-btn" onClick={flip}>
-                Show answer
-              </button>
+              !typing && (
+                <button className="btn reveal-btn" onClick={flip}>
+                  Show answer
+                </button>
+              )
             )}
           </div>
           <div className="hint">
+            {typeMode && !typing && <div style={{ marginBottom: 6 }}>Nothing to type on this card, so flip it as usual.</div>}
             Click the card or press <kbd>Space</kbd> to flip · <kbd>1</kbd>–<kbd>4</kbd> to rate
           </div>
         </>

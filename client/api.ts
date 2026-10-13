@@ -12,6 +12,88 @@ export interface FolderWithStats extends Folder {
   due_count: number;
 }
 
+export type ImportDestination = { type: 'new'; name: string; parentId?: number | null } | { type: 'existing'; folderId: number };
+export interface ImportOptions {
+  destination: ImportDestination;
+  rebuildFolders: boolean;
+  skipDuplicates: boolean;
+}
+export interface ImportSummary {
+  imported: number;
+  duplicates: number;
+  empty: number;
+  foldersCreated: number;
+  newFolderPaths: string[];
+  images: number;
+  folderId?: number;
+}
+export interface ApkgNoteType {
+  id: string;
+  name: string;
+  fields: string[];
+  cloze: boolean;
+  count: number;
+  examples: string[];
+}
+export type ApkgMappings = Record<string, { front: number; back: number | null }>;
+export interface ApkgAnalysis {
+  token: string;
+  fileName: string;
+  format: string;
+  noteCount: number;
+  mediaCount: number;
+  noteTypes: ApkgNoteType[];
+  decks: { path: string; count: number }[];
+  commonRoot: string | null;
+  suggestedName: string;
+  mappings: ApkgMappings;
+}
+export interface ApkgStats {
+  notes: number;
+  images: number;
+  missingMedia: number;
+  unsupportedMedia: number;
+  cloze: number;
+  audio: number;
+}
+export interface ApkgSample {
+  path: string[];
+  front: string;
+  back: string;
+  frontImages: string[];
+  backImages: string[];
+}
+export interface ApkgSettings {
+  token: string;
+  mappings: ApkgMappings;
+  stripCommonRoot: boolean;
+}
+
+export type NotesDensity = 'light' | 'standard' | 'thorough';
+export interface NotesStatus {
+  available: boolean;
+  mode?: 'claude' | 'demo';
+  model?: string | null;
+  dailyLimit?: number;
+  usedToday?: number;
+  limits?: { maxFiles: number; maxFileMB: number; maxImageMB: number; maxTextChars: number; maxFocusChars: number };
+}
+export interface NotesResult {
+  mode: 'claude' | 'demo';
+  model?: string;
+  subject: string;
+  summary: string;
+  warnings: string[];
+  topics: { name: string; cards: { front: string; back: string }[] }[];
+}
+export interface NotesJob {
+  status: 'working' | 'done' | 'error' | 'cancelled';
+  stage: string;
+  cards: number;
+  error?: string;
+  result?: NotesResult;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -57,7 +139,8 @@ export const api = {
     request<{ folder: Folder }>(`/folders/${id}`, { method: 'PATCH', json: body }),
   deleteFolder: (id: number) => request(`/folders/${id}`, { method: 'DELETE' }),
   resetFolder: (id: number) => request<{ reset: number }>(`/folders/${id}/reset`, { method: 'POST' }),
-  exportUrl: '/api/export.csv',
+  /** Leave `folderIds` out to export everything. */
+  exportUrl: (folderIds?: number[]) => (folderIds ? `/api/export.csv?folders=${folderIds.join(',')}` : '/api/export.csv'),
 
   cards: (folderId: number) => request<{ cards: Card[] }>(`/folders/${folderId}/cards`),
   deepCards: (folderId: number) => request<{ cards: Card[] }>(`/folders/${folderId}/cards?deep=1`),
@@ -80,6 +163,27 @@ export const api = {
   nextCard: (folderId: number) => request<NextCardResponse>(`/study/${folderId}/next`),
   rate: (folderId: number, cardId: number, rating: Rating) =>
     request<NextCardResponse>(`/study/${folderId}/rate`, { method: 'POST', json: { cardId, rating } }),
+
+  importDryRun: (body: ImportOptions & { cards: { path: string[]; front: string; back: string }[] }) =>
+    request<ImportSummary>('/import/dry-run', { method: 'POST', json: body }),
+  importCommit: (body: ImportOptions & { cards: { path: string[]; front: string; back: string }[] }) =>
+    request<ImportSummary>('/import', { method: 'POST', json: body }),
+  apkgAnalyze: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return request<ApkgAnalysis>('/import/apkg/analyze', { method: 'POST', body: form });
+  },
+  apkgPreview: (settings: ApkgSettings, shift: number) =>
+    request<{ samples: ApkgSample[]; stats: ApkgStats }>('/import/apkg/preview', { method: 'POST', json: { ...settings, shift } }),
+  apkgDryRun: (settings: ApkgSettings, options: ImportOptions) =>
+    request<ImportSummary & { stats: ApkgStats }>('/import/apkg/dry-run', { method: 'POST', json: { ...settings, options } }),
+  apkgCommit: (settings: ApkgSettings, options: ImportOptions) =>
+    request<ImportSummary & { stats: ApkgStats }>('/import/apkg/commit', { method: 'POST', json: { ...settings, options } }),
+
+  notesStatus: () => request<NotesStatus>('/notes/status'),
+  notesGenerate: (form: FormData) => request<{ jobId: string }>('/notes/generate', { method: 'POST', body: form }),
+  notesJob: (id: string) => request<NotesJob>(`/notes/jobs/${id}`),
+  notesCancel: (id: string) => request<{ ok: boolean }>(`/notes/jobs/${id}`, { method: 'DELETE' }),
 
   calendar: (year: number, month: number) =>
     request<{ days: Record<number, number>; reviewedToday: number }>(`/stats/calendar?year=${year}&month=${month}`),

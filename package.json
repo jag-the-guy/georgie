@@ -13,11 +13,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
+    "fflate": "^0.8.3",
+    "fzstd": "^0.1.1",
     "lucide-react": "^1.52.0",
+    "mammoth": "^1.13.0",
     "multer": "^2.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

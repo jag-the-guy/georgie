@@ -16,8 +16,9 @@ beforeEach(() => {
 });
 afterEach(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
+// Opens at version 1 (no upgrades applied), so each test can choose which upgrades to run.
 function seed(file: string) {
-  const db = openDb(file);
+  const db = openDb(file, { migrations: [] });
   const user = Number(db.prepare("INSERT INTO users (email, password_hash, created_at) VALUES ('a@example.com', 'x', 0)").run().lastInsertRowid);
   const folder = Number(db.prepare("INSERT INTO folders (user_id, name, created_at) VALUES (?, 'Bio', 0)").run(user).lastInsertRowid);
   db.prepare("INSERT INTO cards (user_id, folder_id, front, back, created_at, updated_at, due_at) VALUES (?, ?, 'Q', 'A', 0, 0, 0)").run(user, folder);
@@ -63,7 +64,7 @@ describe('database upgrades never lose cards', () => {
 
     const db = openDb(file);
     expect(cardCount(db)).toBe(1);
-    expect(db.pragma('user_version', { simple: true })).toBe(1);
+    expect(db.pragma('user_version', { simple: true })).toBe(2); // brought up to date: versioned, and the AI usage table added
     db.close();
     expect(cardCount(openDb(file))).toBe(1); // and again
   });
@@ -103,6 +104,17 @@ describe('database upgrades never lose cards', () => {
     expect((db.prepare('SELECT COUNT(*) AS n FROM cards').get() as { n: number }).n).toBe(1);
     const columns = (db.pragma('table_info(cards)') as { name: string }[]).map((c) => c.name);
     expect(columns).not.toContain('half_done'); // rolled back
+  });
+
+  it("the real upgrades add the AI usage table, save a copy first, and keep every card", () => {
+    const file = path.join(tmp, 'app.db');
+    const backupDir = path.join(tmp, 'backups');
+    seed(file).close(); // an existing database at version 1
+    const db = openDb(file, { backupDir });
+    expect(db.pragma('user_version', { simple: true })).toBe(2);
+    expect(cardCount(db)).toBe(1);
+    expect(() => db.prepare('SELECT COUNT(*) FROM ai_usage').get()).not.toThrow();
+    expect(fs.readdirSync(backupDir).some((f) => f.startsWith('pre-migration-v1-to-v2-'))).toBe(true);
   });
 
   it('a brand-new database needs no backup', () => {

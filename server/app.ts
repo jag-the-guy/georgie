@@ -11,9 +11,16 @@ import { imageRouter } from './routes/images';
 import { studyRouter } from './routes/study';
 import { exportRouter } from './routes/export';
 import { adminRouter } from './routes/admin';
+import { importRouter } from './routes/import';
+import { notesRouter, type NotesDeps } from './routes/notes';
+import { DemoGenerator } from './notes/demo';
 
 export interface AppOptions {
   uploadsDir: string;
+  /** Turn notes into flashcards with AI. Left out, the feature is off for everyone. */
+  notes?: Omit<NotesDeps, 'db'>;
+  /** Temporary home for Anki decks between "upload" and "import". */
+  stagingDir?: string;
   /** Where backup snapshots are written. */
   backupDir?: string;
   /** Secret for the owner-only backup download. Leave unset to switch the admin routes off. */
@@ -29,7 +36,9 @@ export function createApp(db: DB, opts: AppOptions) {
   const app = express();
   app.disable('x-powered-by');
   if (opts.trustProxy) app.set('trust proxy', 1);
-  app.use(express.json({ limit: '1mb' }));
+  // Everything is limited to 1 MB of JSON, except the import routes, which set their own, larger limit.
+  const smallJson = express.json({ limit: '1mb' });
+  app.use((req, res, next) => (req.path.startsWith('/api/import') ? next() : smallJson(req, res, next)));
   app.use(cookieParser());
 
   // For hosting health checks: confirms the process is up and the database answers.
@@ -54,6 +63,8 @@ export function createApp(db: DB, opts: AppOptions) {
   api.use(imageRouter(db, opts.uploadsDir));
   api.use(studyRouter(db));
   api.use(exportRouter(db));
+  api.use('/notes', notesRouter({ db, generator: new DemoGenerator(), allowed: () => false, dailyLimit: 0, ...opts.notes }));
+  api.use('/import', importRouter(db, opts.uploadsDir, opts.stagingDir ?? path.join(opts.uploadsDir, '..', 'staging')));
   app.use('/api', api);
   app.use('/api', () => {
     throw new HttpError(404, 'Not found');

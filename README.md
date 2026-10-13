@@ -61,10 +61,71 @@ logged. The pencil on a card row edits it. **Study** is the spaced-repetition mo
 
 ## Export and reset
 
-- **Export CSV** (dashboard): downloads every card as `Folder,Front,Back`. The folder column holds the full path,
-  e.g. `Biology / Cells`. Opens in Excel/Sheets and imports into Anki, Quizlet and similar apps. Images aren't included.
+- **Export CSV** (dashboard, or **Export to CSV...** in a folder's `...` menu): opens a list of your folders with
+  checkboxes. Tick the ones to include (ticking a folder ticks the folders inside it; you can untick any), and it
+  downloads `Folder,Front,Back`. The folder column holds the full path, e.g. `Biology / Cells`. Opens in
+  Excel/Sheets and imports into Anki, Quizlet and similar apps. Images aren't included. Georgie's own **Import** reads
+  these files back in.
 - **Reset progress** (folder menu, the `...` button): puts every card in that folder and its subfolders back to new.
   Cards are kept, and the review history is kept.
+
+## Turn your notes into flashcards (AI)
+
+**Notes to cards** on the dashboard takes your notes and has Claude (Anthropic's AI) read them, work out the subject
+and topics, and write flashcards. You then **review every card** (edit, untick, delete, add your own, rename topics),
+choose where they go (a new folder, or inside one you already have; each topic can become a subfolder), and import.
+
+- **Inputs:** PDF (including scanned pages), Word `.docx`, `.txt`/`.md`, photos or screenshots of notes (PNG, JPEG,
+  GIF, WebP), and pasted text. Up to 6 files, 20 MB of PDFs/pictures in total. Pictures: 5 MB each. iPhone HEIC
+  photos, RTF, PowerPoint and Excel aren't supported (save as PDF).
+- **How many cards:** Light / Standard / Thorough, plus an optional "focus on..." note.
+- **Privacy:** the notes are sent to Anthropic to make the cards. Georgie doesn't store them: they're held in memory
+  only while the job runs. Only the cards you import are saved.
+- **Who can use it:** it costs money, so on the live site it's **off unless `NOTES_AI_USERS` lists your email**
+  (comma-separated). On your own computer everyone can use it. Each person is also capped per day (`NOTES_AI_DAILY_LIMIT`,
+  default 20); a go that fails or is cancelled is given back.
+- **Settings** go in `.env` (git-ignored; copy `.env.example`), or Railway's Variables tab:
+  `ANTHROPIC_API_KEY` (get one at https://console.anthropic.com, pay-per-use), `NOTES_AI_USERS`, and optionally
+  `NOTES_AI_MODEL` (default `claude-opus-5-5`; `claude-sonnet-5-5` costs about half as much) and `NOTES_AI_DAILY_LIMIT`.
+- **Demo mode:** with no key, a simple rule-based demo makes sample cards from plain text ("Term: definition" lines),
+  clearly labelled as not real AI, so you can try every screen. It can't read PDFs or pictures.
+- **Check your key works:** `npx tsx scripts/check-ai.ts` makes one small real request (a few cents) and prints the result.
+- **Rough cost** (Claude Opus 5.5 at $4 / $20 per million tokens, thinking included): a 20-page document is typically
+  tens of cents; a 100-page PDF a couple of dollars. Sonnet 5.5 is about half. Look at your usage on the Anthropic console.
+- Requests also opt in to Anthropic's server-side refusal fallback. If the AI declines a set of notes anyway (it can
+  be over-cautious with some biology/chemistry content), the screen says so and the go is given back.
+- Code: `server/notes/` (reading files, the prompt, the Claude call, the demo), `server/routes/notes.ts`,
+  `client/pages/Notes.tsx`.
+
+## Type your answer
+
+On the study screen, the **Type my answer** switch (remembered on that device) asks you to type what you think the
+answer is before the card flips. Georgie compares it with the back of the card and shows **Correct**, **Almost** or
+**Not quite**, a friendly message (wrong answers get a shuffled encouraging one, never the same twice in a row), and what
+you typed. It suggests a rating (Good, Medium or Hard) by highlighting a button, but you always choose; nothing is
+rated for you.
+
+The check is forgiving: capitals, punctuation and extra spaces don't matter; small typos are forgiven in longer words
+(not in short words or numbers, so "1968" is wrong for "1969"); word order and little words ("the", "to", "el") are
+flexible; a missing accent counts as right with a "Watch the accent" note; notes in (brackets), the first line, and
+alternatives separated by `;`, `/` or `|` can stand alone. Cards with no text on the back, and fill-in-the-blank
+cards, skip typing and flip as usual. The matching logic is `shared/answerMatch.ts`.
+
+## Importing cards from other apps
+
+**Import** (dashboard, next to Export CSV) reads a file, works out the layout, and shows three example cards as they
+would look in Georgie before anything is saved. You can swap front and back, change the separator or header row, pick
+the destination folder, and see how many duplicates would be skipped.
+
+- **Text / CSV / TSV** (`.csv .tsv .txt`): Georgie's own export, Anki "Notes in Plain Text", Quizlet exports, and
+  spreadsheets saved as CSV. It detects the separator, a header row, which column is the front/back, and a folder or
+  deck column. HTML in the text is converted to plain text; fill-in-the-blank (cloze) cards become a question with
+  blanks and an answer. Text files cannot contain pictures. Excel `.xlsx` files must be saved as CSV first.
+- **Anki decks** (`.apkg`, `.colpkg`): both Anki's older format and the newer compressed one. Pictures come across on
+  the correct side of each card; deck names become folders. Sounds/videos and SVG pictures are left out. Anki cards that
+  have a reverse side are imported once. Limit: 50 MB per file.
+- All imported cards start as new. Limit: 20,000 cards per import. Imports are all-or-nothing: if anything fails, nothing is added.
+- Uploaded Anki decks wait in `staging/` (inside the data folder) for up to 30 minutes until you confirm, at most three per person.
 
 ## Keeping your users' data safe (hosting on Railway)
 

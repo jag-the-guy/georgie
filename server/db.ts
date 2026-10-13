@@ -19,7 +19,18 @@ export interface Migration {
  * On the next start each pending migration runs once, inside a transaction (all or nothing),
  * after a full copy of the database is saved to the backups folder.
  */
-export const MIGRATIONS: Migration[] = [];
+export const MIGRATIONS: Migration[] = [
+  {
+    // Counts how many times each person has used "turn notes into flashcards" per day, to cap AI spending.
+    version: 2,
+    sql: `CREATE TABLE IF NOT EXISTS ai_usage (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            day     TEXT    NOT NULL,
+            jobs    INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (user_id, day)
+          )`,
+  },
+];
 
 export interface OpenOptions {
   /** Where to save a copy of the database before it is upgraded. */

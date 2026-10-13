@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ChevronRight, FolderPlus, MoreHorizontal, Play, Plus, Settings, StickyNote, Trash2, FolderInput, RotateCcw, Layers } from 'lucide-react';
+import { ChevronRight, FolderPlus, MoreHorizontal, Play, Plus, Settings, StickyNote, Trash2, FolderInput, RotateCcw, Layers, Download } from 'lucide-react';
 import { api } from '../api';
 import type { Card } from '../../shared/types';
 import { useFolders } from '../state';
@@ -9,6 +9,7 @@ import { AddTile, FolderTile } from '../components/FolderTile';
 import { CardEditor } from '../components/CardEditor';
 import { CardRow } from '../components/CardRow';
 import { FolderDialog } from '../components/FolderDialog';
+import { ExportDialog } from '../components/ExportDialog';
 import { Modal, plural } from '../components/ui';
 import { useLayout } from './Layout';
 
@@ -22,6 +23,7 @@ export function FolderPage() {
   const [editing, setEditing] = useState<Card | 'new' | null>(null);
   const [settings, setSettings] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [menu, setMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -125,6 +127,9 @@ export function FolderPage() {
               <button onClick={() => (setMenu(false), setMoving(true))}>
                 <FolderInput size={16} /> Move
               </button>
+              <button onClick={() => (setMenu(false), setExporting(true))} disabled={folder.card_count === 0}>
+                <Download size={16} /> Export to CSV…
+              </button>
               <button onClick={resetProgress} disabled={folder.card_count === 0}>
                 <RotateCcw size={16} /> Reset progress
               </button>
@@ -197,6 +202,7 @@ export function FolderPage() {
           }}
         />
       )}
+      {exporting && <ExportDialog initial={[...descendants]} onClose={() => setExporting(false)} />}
       {settings && (
         <FolderDialog
           folder={folder}

@@ -19,7 +19,9 @@ export function Layout() {
   const navigate = useNavigate();
   const studyMatch = useMatch('/study/:id');
   const browseMatch = useMatch('/browse/:id');
-  const studying = studyMatch ?? browseMatch;
+  const importMatch = useMatch('/import');
+  const notesMatch = useMatch('/notes');
+  const studying = studyMatch ?? browseMatch ?? importMatch ?? notesMatch;
   const [menuOpen, setMenuOpen] = useState(false);
   const [creating, setCreating] = useState<{ parentId: number | null } | null>(null);
 

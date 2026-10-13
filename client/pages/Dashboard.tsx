@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FolderPlus, Layers } from 'lucide-react';
-import { api } from '../api';
+import { Download, FolderPlus, Layers, Sparkles } from 'lucide-react';
 import { useFolders } from '../state';
 import { AddTile, FolderTile } from '../components/FolderTile';
+import { ImportButton } from '../components/ImportButton';
+import { ExportDialog } from '../components/ExportDialog';
+import { api } from '../api';
 import { TopBar } from '../components/TopBar';
 import { FolderIcon, plural } from '../components/ui';
 import { useLayout } from './Layout';
@@ -11,6 +14,12 @@ export function Dashboard() {
   const { childrenOf, loaded } = useFolders();
   const { newFolder } = useLayout();
   const navigate = useNavigate();
+  const [exporting, setExporting] = useState(false);
+  // "Turn notes into flashcards" is only offered to people it's been switched on for.
+  const [notesAvailable, setNotesAvailable] = useState(false);
+  useEffect(() => {
+    api.notesStatus().then((s) => setNotesAvailable(s.available)).catch(() => setNotesAvailable(false));
+  }, []);
   const roots = childrenOf(null);
   const due = roots.filter((f) => f.due_count > 0).sort((a, b) => b.due_count - a.due_count);
 
@@ -23,9 +32,15 @@ export function Dashboard() {
           <h2>My Folders</h2>
           <div style={{ display: 'flex', gap: 8 }}>
             {roots.length > 0 && (
-              <a className="btn ghost small" href={api.exportUrl} download title="Download every card as a CSV file">
+              <button className="btn ghost small" onClick={() => setExporting(true)} title="Download cards as a CSV file: choose which folders">
                 <Download size={16} /> Export CSV
-              </a>
+              </button>
+            )}
+            <ImportButton />
+            {notesAvailable && (
+              <button className="btn secondary small" onClick={() => navigate('/notes')} title="Upload your notes and let AI turn them into flashcards">
+                <Sparkles size={16} /> Notes to cards
+              </button>
             )}
             <button className="btn secondary small" onClick={() => newFolder(null)}>
               <FolderPlus size={16} /> New folder
@@ -90,6 +105,7 @@ export function Dashboard() {
           </table>
         </section>
       )}
+      {exporting && <ExportDialog onClose={() => setExporting(false)} />}
     </>
   );
 }
