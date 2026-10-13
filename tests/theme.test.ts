@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 const read = (p: string) => readFileSync(join(__dirname, '..', p), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 const styles = read('client/styles.css');
 const redesign = read('client/themes/redesign.css');
+const premium = read('client/themes/premium.css');
 
 /** Body of the first rule whose selector is exactly `selector`. */
 function block(css: string, selector: string): string {
@@ -21,8 +22,15 @@ function tokens(body: string): Record<string, string> {
 }
 
 const base = tokens(block(styles, ':root'));
-const light = tokens(block(redesign, ":root[data-design='new']"));
-const dark = tokens(block(redesign, ":root[data-design='new'][data-theme='dark']"));
+const variants = (['new', 'premium'] as const).map((name) => {
+  const css = name === 'new' ? redesign : premium;
+  return {
+    name,
+    css,
+    light: tokens(block(css, `:root[data-design='${name}']`)),
+    dark: tokens(block(css, `:root[data-design='${name}'][data-theme='dark']`)),
+  };
+});
 const COLOUR_TOKEN = /^--(color|rate|result|state|notice|folder|shadow)/;
 const colourTokens = Object.keys(base).filter((k) => COLOUR_TOKEN.test(k));
 
@@ -32,31 +40,35 @@ describe('token coverage', () => {
     for (const u of used) if (!u.startsWith('--c')) expect(base, u).toHaveProperty(u);
   });
 
-  it('the new design redefines every colour token, in light and in dark', () => {
-    for (const k of colourTokens) {
-      expect(light, `light ${k}`).toHaveProperty(k);
-      expect(dark, `dark ${k}`).toHaveProperty(k);
-    }
-  });
+  describe.each(variants)('$name design', ({ light, dark }) => {
+    it('redefines every colour token, in light and in dark', () => {
+      for (const k of colourTokens) {
+        expect(light, `light ${k}`).toHaveProperty(k);
+        expect(dark, `dark ${k}`).toHaveProperty(k);
+      }
+    });
 
-  it('light and dark define exactly the same token names', () => {
-    expect(Object.keys(dark).sort()).toEqual(Object.keys(light).sort());
+    it('light and dark define exactly the same token names', () => {
+      expect(Object.keys(dark).sort()).toEqual(Object.keys(light).sort());
+    });
   });
 });
 
 describe('no raw colours outside the token blocks', () => {
   const RAW = /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/;
+  // Token definitions (which may span several lines) are the one place raw colours are allowed.
   const offenders = (css: string) =>
     css
+      .replace(/--[\w-]+\s*:[^;]*;/g, (m) => m.replace(/[^\n]/g, ' '))
       .split('\n')
       .map((l, i) => [i + 1, l] as const)
-      .filter(([, l]) => RAW.test(l) && !/^\s*--[\w-]+\s*:/.test(l));
+      .filter(([, l]) => RAW.test(l));
 
   it('styles.css only has raw colours as token values', () => {
     expect(offenders(styles.replace(block(styles, ':root'), ''))).toEqual([]);
   });
-  it('redesign.css only has raw colours as token values', () => {
-    expect(offenders(redesign)).toEqual([]);
+  it.each(variants)('$name design css only has raw colours as token values', ({ css }) => {
+    expect(offenders(css)).toEqual([]);
   });
   it('components and pages use tokens, not raw colours', () => {
     const files: string[] = [];
@@ -152,10 +164,11 @@ const pairs: [fg: string, bg: string, min: number][] = [
   ] as [string, string, number][]),
 ];
 
-describe.each([
-  ['light', light],
-  ['dark', dark],
-] as const)('WCAG AA contrast, %s mode', (_name, theme) => {
+const modes = variants.flatMap((v) => [
+  [`${v.name} light`, v.light],
+  [`${v.name} dark`, v.dark],
+] as const);
+describe.each(modes)('WCAG AA contrast, %s mode', (_name, theme) => {
   it.each(pairs)('%s on %s needs %s:1', (fg, bg, min) => {
     expect(theme, fg).toHaveProperty(fg);
     expect(theme, bg).toHaveProperty(bg);
@@ -174,7 +187,7 @@ describe('feedback colours', () => {
       const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
       return (h * 60 + 360) % 360;
     };
-    for (const theme of [light, dark]) {
+    for (const theme of variants.flatMap((v) => [v.light, v.dark])) {
       const keys = Object.keys(theme).filter((k) => /^--(rate|result|state)-.*-(fg|solid)$/.test(k) && !k.includes('on-solid'));
       for (const k of keys) {
         const h = hue(theme[k]);
@@ -182,5 +195,17 @@ describe('feedback colours', () => {
         expect(isRed, `${k} ${theme[k]} hue ${h.toFixed(0)}`).toBe(false);
       }
     }
+  });
+});
+
+describe('premium gradients', () => {
+  const premium = variants.find((v) => v.name === 'premium')!;
+  it.each([
+    ['light', premium.light],
+    ['dark', premium.dark],
+  ] as const)('button label stays AA on every stop of the %s primary gradient', (_n, theme) => {
+    const stops = theme['--fx-primary-fill'].match(/#[0-9a-f]{6}/gi) ?? [];
+    expect(stops.length).toBeGreaterThanOrEqual(3);
+    for (const stop of stops) expect(ratio(theme['--color-on-primary'], stop), stop).toBeGreaterThanOrEqual(TEXT);
   });
 });

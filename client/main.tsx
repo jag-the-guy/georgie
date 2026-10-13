@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import './styles.css';
 import './themes/redesign.css'; // design experiment (temporary)
+import './themes/premium.css'; // design experiment (temporary)
 import './themes/design-switch.css'; // design experiment (temporary)
 import { DesignSwitch } from './themes/DesignSwitch'; // design experiment (temporary)
 import './themes/theme'; // design experiment (temporary)

@@ -9,9 +9,10 @@
       (function () {
         var root = document.documentElement;
         try {
-          var design = localStorage.getItem('georgie.design') === 'old' ? 'old' : 'new';
+          var saved = localStorage.getItem('georgie.design');
+          var design = saved === 'old' || saved === 'premium' ? saved : 'new';
           var pref = localStorage.getItem('georgie.theme');
-          var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var dark = pref === 'dark' || (pref !== 'light' && (design === 'premium' && pref !== 'system' || window.matchMedia('(prefers-color-scheme: dark)').matches));
           root.setAttribute('data-design', design);
           root.setAttribute('data-theme', dark ? 'dark' : 'light');
         } catch (e) {
@@ -24,11 +25,13 @@
       /* design experiment (temporary): paint the right page colour even before the stylesheet arrives */
       html[data-design='new'] { background: #fafaf7; }
       html[data-design='new'][data-theme='dark'] { background: #16181d; }
+      html[data-design='premium'] { background: #e9f0ff; }
+      html[data-design='premium'][data-theme='dark'] { background: #0a1226; }
     </style>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='9' width='14' height='14' rx='3' transform='rotate(45 10 16)' fill='%238B6FD6'/%3E%3Crect x='13' y='9' width='14' height='14' rx='3' transform='rotate(45 20 16)' fill='%23C3B2F0' opacity='.9'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

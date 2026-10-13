@@ -8,12 +8,17 @@
 export type ThemeChoice = 'light' | 'dark' | 'system';
 const KEY = 'georgie.theme';
 
+/** Nothing chosen yet: follow the system, except the Premium design which is built dark-first. */
+function defaultChoice(): ThemeChoice {
+  return document.documentElement.dataset.design === 'premium' ? 'dark' : 'system';
+}
+
 export function getThemeChoice(): ThemeChoice {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'light' || v === 'dark' ? v : 'system';
+    return v === 'light' || v === 'dark' || v === 'system' ? v : defaultChoice();
   } catch {
-    return 'system';
+    return defaultChoice();
   }
 }
 

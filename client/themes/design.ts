@@ -2,18 +2,19 @@
  * TEMPORARY design experiment.
  *
  * Two looks live side by side: the original one (client/styles.css, untouched) and the experimental one
- * (client/themes/redesign.css, which only applies when <html data-design="new">). The switch in DesignSwitch.tsx flips
+ * (client/themes/redesign.css, which only applies when <html data-design="new">) and the dark "Premium" one (client/themes/premium.css, data-design="premium"). The switch in DesignSwitch.tsx flips
  * between them instantly, on every screen, and remembers the choice on this device.
  *
  * TO REMOVE THIS EXPERIMENT: delete the client/themes folder and the two lines marked "design experiment" in
  * client/main.tsx. The app then looks exactly like the original design again.
  */
-export type Design = 'old' | 'new';
+export type Design = 'old' | 'new' | 'premium';
 const KEY = 'georgie.design';
 
 export function getDesign(): Design {
   try {
-    return localStorage.getItem(KEY) === 'old' ? 'old' : 'new';
+    const v = localStorage.getItem(KEY);
+    return v === 'old' || v === 'premium' ? v : 'new';
   } catch {
     return 'new';
   }

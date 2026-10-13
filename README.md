@@ -135,6 +135,8 @@ The **New** design (`client/themes/redesign.css`, only active while `<html data-
 
 `npm test` includes `tests/theme.test.ts`: it checks that Light and Dark define the same tokens, that no raw colours creep into components, and that every text/background pair meets WCAG AA in both modes.
 
+A third look, **Premium** (`client/themes/premium.css`), is a dark "night glass" design: frosted translucent panels with glowing blue accents and Space Grotesk numerals, with a frosted-daylight light variant. It is the third button on the Old / New pill, defaults to Dark, and uses the same theme control and the same contrast tests.
+
 To go back to the original look: `git switch main` (or delete `client/themes`, the marked "design experiment" lines in `client/main.tsx`, `Sidebar.tsx` and `Auth.tsx`, and the marked script/style in `client/index.html`).
 
 ## Keeping your users' data safe (hosting on Railway)
