@@ -5,3 +5,6 @@ data
 
 # Design reference image (third-party artwork), kept local
 flashcard app reference.webp
+
+# Local editor/preview tooling
+.claude
