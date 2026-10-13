@@ -67,7 +67,7 @@ export function Lightbox({ src, onClose }: { src: string; onClose: () => void })
   );
 }
 
-export function Ring({ percent, color = 'var(--accent)', track = 'var(--line)' }: { percent: number; color?: string; track?: string }) {
+export function Ring({ percent, color = 'var(--color-primary)', track = 'var(--color-border)' }: { percent: number; color?: string; track?: string }) {
   const r = 16;
   const c = 2 * Math.PI * r;
   return (

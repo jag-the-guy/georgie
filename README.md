@@ -127,6 +127,16 @@ the destination folder, and see how many duplicates would be skipped.
 - All imported cards start as new. Limit: 20,000 cards per import. Imports are all-or-nothing: if anything fails, nothing is added.
 - Uploaded Anki decks wait in `staging/` (inside the data folder) for up to 30 minutes until you confirm, at most three per person.
 
+## Colours and the design experiment (temporary)
+
+Every colour in the app is a design token (CSS variable such as `--color-bg`, `--color-primary`, `--rate-1-fg`) defined once in `client/styles.css`; components never use raw colour values. The **Old** design is those values as they were.
+
+The **New** design (`client/themes/redesign.css`, only active while `<html data-design="new">`) gives every token a new value in **light** and **dark** mode, and adds the motion layer (springy hovers and entrances, a gold "Done for today" celebration; all of it switched off for people whose system asks for reduced motion). The small **Old / New** pill at the bottom left flips designs instantly, and the sun / monitor / moon control (sidebar bottom, and the corner of the login page) picks Light, System or Dark. "System" follows the device live; the choice is remembered, and an inline script in `client/index.html` applies it before the first paint so nothing flashes.
+
+`npm test` includes `tests/theme.test.ts`: it checks that Light and Dark define the same tokens, that no raw colours creep into components, and that every text/background pair meets WCAG AA in both modes.
+
+To go back to the original look: `git switch main` (or delete `client/themes`, the marked "design experiment" lines in `client/main.tsx`, `Sidebar.tsx` and `Auth.tsx`, and the marked script/style in `client/index.html`).
+
 ## Keeping your users' data safe (hosting on Railway)
 
 Users' accounts, cards and images live in one folder (`DATA_DIR`), **not** in GitHub. Deploying new code replaces

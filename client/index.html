@@ -4,6 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Georgie Flashcards</title>
+    <!-- design experiment (temporary): choose design + light/dark theme BEFORE first paint so nothing flashes. See client/themes. -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var design = localStorage.getItem('georgie.design') === 'old' ? 'old' : 'new';
+          var pref = localStorage.getItem('georgie.theme');
+          var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          root.setAttribute('data-design', design);
+          root.setAttribute('data-theme', dark ? 'dark' : 'light');
+        } catch (e) {
+          root.setAttribute('data-design', 'new');
+          root.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+    <style>
+      /* design experiment (temporary): paint the right page colour even before the stylesheet arrives */
+      html[data-design='new'] { background: #fafaf7; }
+      html[data-design='new'][data-theme='dark'] { background: #16181d; }
+    </style>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='9' width='14' height='14' rx='3' transform='rotate(45 10 16)' fill='%238B6FD6'/%3E%3Crect x='13' y='9' width='14' height='14' rx='3' transform='rotate(45 20 16)' fill='%23C3B2F0' opacity='.9'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

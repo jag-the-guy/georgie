@@ -6,6 +6,7 @@ import './styles.css';
 import './themes/redesign.css'; // design experiment (temporary)
 import './themes/design-switch.css'; // design experiment (temporary)
 import { DesignSwitch } from './themes/DesignSwitch'; // design experiment (temporary)
+import './themes/theme'; // design experiment (temporary)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

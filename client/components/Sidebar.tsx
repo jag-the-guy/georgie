@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, LayoutDashboard, LogOut, Plus, X } from 'luc
 import { useAuth, useFolders } from '../state';
 import type { FolderWithStats } from '../api';
 import { Logo } from './ui';
+import { ThemeToggle } from '../themes/ThemeToggle'; // design experiment (temporary)
 
 export function Sidebar({ open, onClose, onNewFolder }: { open: boolean; onClose: () => void; onNewFolder: () => void }) {
   const { logout } = useAuth();
@@ -37,6 +38,7 @@ export function Sidebar({ open, onClose, onNewFolder }: { open: boolean; onClose
         {childrenOf(null).length === 0 && <div className="muted small" style={{ padding: '4px 14px' }}>No folders yet</div>}
       </nav>
 
+      <ThemeToggle /> {/* design experiment (temporary) */}
       <button className="nav-item" onClick={logout}>
         <LogOut size={18} /> Log out
       </button>

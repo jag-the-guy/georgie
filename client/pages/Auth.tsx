@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth } from '../state';
 import { Logo } from '../components/ui';
+import { ThemeToggle } from '../themes/ThemeToggle'; // design experiment (temporary)
 
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const { setUser } = useAuth();
@@ -34,6 +35,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
   return (
     <div className="auth-page">
+      <div className="auth-theme"><ThemeToggle /></div> {/* design experiment (temporary) */}
       <form className="auth-card" onSubmit={submit}>
         <div className="brand">
           <Logo size={32} />
