@@ -1,0 +1,10 @@
+/*
+ * TEMPORARY EXPERIMENT: the new design. Everything here is scoped to :root[data-design='new'], so it only applies while the
+ * switch is on "New". The original design (client/styles.css) is not modified. To remove: delete this folder (see design.ts).
+ *
+ * Most of the app's colours come from the CSS variables defined in styles.css (:root), so a new look can be built by
+ * redefining those variables here, then adding rules for anything that needs more than a colour change.
+ */
+:root[data-design='new'] {
+  /* (the new design's colours, fonts and shapes go here) */
+}
