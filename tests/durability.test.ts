@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -191,4 +191,33 @@ describe('off-site backup download', () => {
     expect((await fetch(url, { headers: { Authorization: `Bearer ${KEY}` } })).status).toBe(401); // falls through to normal login
     s.close();
   });
+});
+
+describe('shutdown', () => {
+  it('stops cleanly on SIGTERM (what Railway sends on every deploy): database closed, exit code 0', async () => {
+    const child = spawn(process.execPath, ['--import', 'tsx', 'server/index.ts'], {
+      cwd: path.join(import.meta.dirname, '..'),
+      env: { ...process.env, NODE_ENV: 'production', PORT: '0', DATA_DIR: path.join(tmp, 'data'), ADMIN_KEY: '', RAILWAY_PROJECT_ID: '', RAILWAY_ENVIRONMENT_ID: '' },
+    });
+    let output = '';
+    child.stdout.on('data', (d) => (output += d));
+    child.stderr.on('data', (d) => (output += d));
+
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`server did not start:\n${output}`)), 15_000);
+      const poll = setInterval(() => {
+        if (output.includes('listening')) {
+          clearInterval(poll);
+          clearTimeout(timer);
+          resolve();
+        }
+      }, 50);
+    });
+
+    const exited = new Promise<number | null>((resolve) => child.once('exit', (code) => resolve(code)));
+    child.kill('SIGTERM');
+    expect(await exited).toBe(0);
+    expect(output).toContain('shutting down cleanly');
+    expect(output).toContain('Database closed');
+  }, 30_000);
 });

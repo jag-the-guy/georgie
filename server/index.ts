@@ -37,7 +37,7 @@ if (adminKey && adminKey.length < MIN_ADMIN_KEY_LENGTH) {
 }
 if (production && !adminKey) console.warn('ADMIN_KEY is not set: the off-site backup download is switched off.');
 
-startBackupSchedule(db, backupDir);
+const stopBackups = startBackupSchedule(db, backupDir);
 
 const app = createApp(db, {
   uploadsDir: path.join(dataDir, 'uploads'),
@@ -48,6 +48,34 @@ const app = createApp(db, {
   secureCookies: process.env.SECURE_COOKIES === '1',
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Georgie Flashcards listening on port ${port}`);
 });
+
+// Railway stops the old container with SIGTERM on every deploy. Finish in-flight requests, then close the
+// database properly (which also folds its write-ahead log into the main file) and exit with success.
+let stopping = false;
+function shutdown(signal: string) {
+  if (stopping) return;
+  stopping = true;
+  console.log(`${signal} received: shutting down cleanly`);
+  stopBackups();
+  const force = setTimeout(() => {
+    console.error('Shutdown took too long, forcing exit');
+    process.exit(1);
+  }, 10_000);
+  force.unref();
+  server.close(() => {
+    try {
+      db.close();
+      console.log('Database closed. Goodbye.');
+      process.exit(0);
+    } catch (err) {
+      console.error('Error while closing the database:', err);
+      process.exit(1);
+    }
+  });
+  server.closeIdleConnections();
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
