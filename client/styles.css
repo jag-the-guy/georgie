@@ -1,6 +1,6 @@
 :root {
   /* ===== Design tokens. Components use these names, never raw colours. =====
-     The values below are the ORIGINAL design. The new design overrides them in themes/redesign.css. */
+     These are the base values; themes/premium.css gives every colour token its final light and dark value. */
 
   /* Surfaces and borders */
   --color-bg: #dcd8ee;

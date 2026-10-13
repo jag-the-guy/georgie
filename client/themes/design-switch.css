@@ -1,9 +1,0 @@
-/* TEMPORARY. Styles only the Old/New switch, in neutral colours so it looks the same in both designs. */
-.design-switch {
-  position: fixed; left: 14px; bottom: 14px; z-index: 1000; display: flex; align-items: center; gap: 2px; padding: 4px;
-  background: #1f1d2b; color: #fff; border-radius: 99px; box-shadow: 0 6px 20px rgba(0, 0, 0, .25); font: 500 12px/1 system-ui, sans-serif;
-}
-.design-switch-label { padding: 0 8px 0 10px; opacity: .65; letter-spacing: .04em; text-transform: uppercase; font-size: 10px; }
-.design-switch button { border: 0; background: transparent; color: rgba(255, 255, 255, .75); padding: 7px 13px; border-radius: 99px; cursor: pointer; font: inherit; }
-.design-switch button:hover { color: #fff; }
-.design-switch button.on { background: #fff; color: #1f1d2b; }

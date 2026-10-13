@@ -1,14 +1,11 @@
 /*
- * TEMPORARY EXPERIMENT: the "Premium" design. Everything is scoped to :root[data-design='premium'] so it only applies while
- * the switch is on "Premium". Old (client/styles.css) and New (redesign.css) are untouched. To remove: delete this file and
- * its import in client/main.tsx (see design.ts).
+ * The app's design: "night glass". Frosted translucent panels with a hairline light edge floating over a soft blue glow,
+ * electric-blue accents with a glow, big crisp numerals. Dark is the default; Light is a frosted daylight version.
  *
- * Look: deep navy "night glass". Frosted translucent panels with a hairline light edge floating over a soft blue glow,
- * electric-blue accents with a glow, big crisp numerals. Dark is the hero look and the default; Light is a frosted daylight
- * version. Same functions and layout as the other designs; only the look changes.
- *
- * Like redesign.css, the first two blocks give every colour token a value (light, then dark), plus a few extra --fx-* tokens
- * (gradients, glass fills and glows). tests/theme.test.ts checks parity, no raw colours elsewhere, and WCAG AA for every pair.
+ * Colours are design tokens: styles.css holds the base values and the two blocks below give every colour token its final
+ * value (light, then dark), plus a few extra --fx-* tokens (gradients, glass fills, glows). Components never use raw
+ * colours. tests/theme.test.ts checks that both modes define the same tokens, that no raw colours appear elsewhere, and
+ * that every text / background pair meets WCAG AA. Everything is scoped to <html data-design="premium"> (set in index.html).
  */
 
 /* ===================== LIGHT (frosted daylight) ===================== */

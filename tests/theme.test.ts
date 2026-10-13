@@ -1,12 +1,11 @@
 // Guards the colour system: every colour is a token, the new design defines the full token set in light AND dark, and
-// every text/background pair meets WCAG AA. Part of the temporary design experiment (client/themes).
+// every text/background pair meets WCAG AA.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const read = (p: string) => readFileSync(join(__dirname, '..', p), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 const styles = read('client/styles.css');
-const redesign = read('client/themes/redesign.css');
 const premium = read('client/themes/premium.css');
 
 /** Body of the first rule whose selector is exactly `selector`. */
@@ -22,8 +21,8 @@ function tokens(body: string): Record<string, string> {
 }
 
 const base = tokens(block(styles, ':root'));
-const variants = (['new', 'premium'] as const).map((name) => {
-  const css = name === 'new' ? redesign : premium;
+const variants = (['premium'] as const).map((name) => {
+  const css = premium;
   return {
     name,
     css,

@@ -1,5 +1,5 @@
 /**
- * TEMPORARY design experiment: light / dark / system theme for the new design (see design.ts for how to remove it).
+ * Light / dark / system theme.
  *
  * The saved choice ('light' | 'dark' | 'system', default 'system') lives in localStorage under georgie.theme. The page
  * always carries the RESOLVED theme in <html data-theme="light|dark">; the inline script in index.html sets it before the
@@ -8,9 +8,9 @@
 export type ThemeChoice = 'light' | 'dark' | 'system';
 const KEY = 'georgie.theme';
 
-/** Nothing chosen yet: follow the system, except the Premium design which is built dark-first. */
+/** Nothing chosen yet: the design is built dark-first, so start in Dark ("System" is one click away). */
 function defaultChoice(): ThemeChoice {
-  return document.documentElement.dataset.design === 'premium' ? 'dark' : 'system';
+  return 'dark';
 }
 
 export function getThemeChoice(): ThemeChoice {
