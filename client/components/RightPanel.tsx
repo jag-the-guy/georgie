@@ -114,7 +114,7 @@ export function RightPanel() {
             const highlight = i === 0;
             return (
               <button key={f.id} className={`progress-item ${highlight ? 'highlight' : ''}`} onClick={() => navigate(`/folders/${f.id}`)}>
-                <Ring percent={pct} color={highlight ? '#fff' : 'var(--accent)'} track={highlight ? 'rgba(255,255,255,.3)' : 'var(--line)'} />
+                <Ring percent={pct} color={highlight ? 'var(--color-on-primary)' : 'var(--color-primary)'} track={highlight ? 'var(--color-on-primary-track)' : 'var(--color-border)'} />
                 <div className="grow">
                   <div>{f.name}</div>
                   <div className="muted small">

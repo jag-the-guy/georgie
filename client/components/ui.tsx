@@ -4,8 +4,8 @@ import { X, BookOpen, Brain, FlaskConical, Globe, Code, Calculator, Music, Palet
 export function Logo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
-      <rect x="3" y="9" width="14" height="14" rx="3" transform="rotate(45 10 16)" fill="#8B6FD6" />
-      <rect x="13" y="9" width="14" height="14" rx="3" transform="rotate(45 20 16)" fill="#C3B2F0" opacity=".9" />
+      <rect x="3" y="9" width="14" height="14" rx="3" transform="rotate(45 10 16)" fill="var(--color-primary)" />
+      <rect x="13" y="9" width="14" height="14" rx="3" transform="rotate(45 20 16)" fill="var(--color-logo-2)" opacity=".9" />
     </svg>
   );
 }
