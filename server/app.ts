@@ -12,6 +12,7 @@ import { studyRouter } from './routes/study';
 import { exportRouter } from './routes/export';
 import { adminRouter } from './routes/admin';
 import { importRouter } from './routes/import';
+import { ownerRouter } from './routes/owner';
 import { notesRouter, type NotesDeps } from './routes/notes';
 import { DemoGenerator } from './notes/demo';
 
@@ -25,6 +26,10 @@ export interface AppOptions {
   backupDir?: string;
   /** Secret for the owner-only backup download. Leave unset to switch the admin routes off. */
   adminKey?: string;
+  /** Emails allowed into the owner's dashboard (ADMIN_EMAILS). Empty: nobody. */
+  adminEmails?: string[];
+  /** Clock, for tests. */
+  now?: () => number;
   /** True when behind a hosting proxy (Railway etc.), so req.ip is the visitor's address, not the proxy's. */
   trustProxy?: boolean;
   /** Built client to serve (production only). */
@@ -63,6 +68,7 @@ export function createApp(db: DB, opts: AppOptions) {
   api.use(imageRouter(db, opts.uploadsDir));
   api.use(studyRouter(db));
   api.use(exportRouter(db));
+  api.use('/owner', ownerRouter(db, { adminEmails: opts.adminEmails ?? [], now: opts.now }));
   api.use('/notes', notesRouter({ db, generator: new DemoGenerator(), allowed: () => false, dailyLimit: 0, ...opts.notes }));
   api.use('/import', importRouter(db, opts.uploadsDir, opts.stagingDir ?? path.join(opts.uploadsDir, '..', 'staging')));
   app.use('/api', api);

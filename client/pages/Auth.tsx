@@ -71,6 +71,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         <button className="btn" disabled={busy}>
           {busy ? 'Please wait…' : signup ? 'Create account' : 'Log in'}
         </button>
+        {signup && (
+          <p className="auth-legal">
+            By creating an account you agree to our <Link to="/privacy">cookie &amp; privacy notice</Link>.
+          </p>
+        )}
         <div className="auth-switch">
           {signup ? (
             <>
@@ -83,6 +88,9 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           )}
         </div>
       </form>
+      <Link to="/privacy" className="auth-footer-link">
+        Cookies &amp; privacy
+      </Link>
     </div>
   );
 }

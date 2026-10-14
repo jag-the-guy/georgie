@@ -108,6 +108,12 @@
   :root[data-design='premium'] .ratings > :nth-child(3) { animation-delay: 120ms; }
   :root[data-design='premium'] .ratings > :nth-child(4) { animation-delay: 180ms; }
   :root[data-design='premium'] .flip-scene, :root[data-design='premium'] .flashcard { animation: rise .5s var(--ease-spring) backwards; }
+  :root[data-design='premium'] .cookie-notice { animation: cookie-in .6s var(--ease-spring) .5s backwards; }
+  @keyframes cookie-in { from { opacity: 0; transform: translate(-50%, 24px); } }
+  :root[data-design='premium'] .admin-stats > *, :root[data-design='premium'] .admin-chart { animation: rise .6s var(--ease-spring) backwards; }
+  :root[data-design='premium'] .admin-stats > :nth-child(2) { animation-delay: 60ms; }
+  :root[data-design='premium'] .admin-stats > :nth-child(3) { animation-delay: 120ms; }
+  :root[data-design='premium'] .admin-stats > :nth-child(4) { animation-delay: 180ms; }
   :root[data-design='premium'] .count-pill, :root[data-design='premium'] .badge { animation: pop-in .45s var(--ease-spring) backwards; }
   :root[data-design='premium'] .overlay { animation: fade .2s ease-out; }
   :root[data-design='premium'] .modal { animation: modal-in .45s var(--ease-spring); }

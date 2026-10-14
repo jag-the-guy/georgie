@@ -21,7 +21,8 @@ export function Layout() {
   const browseMatch = useMatch('/browse/:id');
   const importMatch = useMatch('/import');
   const notesMatch = useMatch('/notes');
-  const studying = studyMatch ?? browseMatch ?? importMatch ?? notesMatch;
+  const adminMatch = useMatch('/admin');
+  const studying = studyMatch ?? browseMatch ?? importMatch ?? notesMatch ?? adminMatch;
   const [menuOpen, setMenuOpen] = useState(false);
   const [creating, setCreating] = useState<{ parentId: number | null } | null>(null);
 

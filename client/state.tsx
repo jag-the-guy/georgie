@@ -4,6 +4,8 @@ import { api, setUnauthorizedHandler, type FolderWithStats, type User } from './
 interface AuthState {
   user: User | null;
   loading: boolean;
+  /** True for the site owner (listed in ADMIN_EMAILS): shows the Admin link. */
+  isAdmin: boolean;
   setUser: (u: User | null) => void;
   logout: () => Promise<void>;
 }
@@ -13,6 +15,19 @@ const AuthContext = createContext<AuthState>(null!);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Ask whenever the signed-in person changes (also clears the flag on logout, so the next login can't inherit it).
+  const userId = user?.id;
+  useEffect(() => {
+    setIsAdmin(false);
+    if (userId === undefined) return;
+    let current = true;
+    api.ownerMe().then((r) => current && setIsAdmin(r.admin)).catch(() => {});
+    return () => {
+      current = false;
+    };
+  }, [userId]);
 
   useEffect(() => {
     setUnauthorizedHandler(() => setUser(null));
@@ -28,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, setUser, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading, isAdmin, setUser, logout }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);

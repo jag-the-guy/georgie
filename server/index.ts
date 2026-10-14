@@ -57,7 +57,12 @@ console.log(
     `${aiDailyLimit} per person per day.`,
 );
 
+// Who may open the owner's dashboard (/admin in the app): the accounts with these emails, e.g. ADMIN_EMAILS=you@example.com
+const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+console.log(adminEmails.length ? `Owner dashboard: open to ${adminEmails.join(', ')}` : 'Owner dashboard: off (set ADMIN_EMAILS to your login email to switch it on)');
+
 const app = createApp(db, {
+  adminEmails,
   notes: { generator, allowed: (user) => (aiUsers.length ? aiUsers.includes(user.email.toLowerCase()) : !production), dailyLimit: aiDailyLimit },
   uploadsDir: path.join(dataDir, 'uploads'),
   backupDir,

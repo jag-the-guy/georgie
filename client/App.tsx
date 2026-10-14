@@ -9,6 +9,8 @@ import { Study } from './pages/Study';
 import { Browse } from './pages/Browse';
 import { ImportPage } from './pages/Import';
 import { NotesPage } from './pages/Notes';
+import { AdminPage } from './pages/Admin';
+import { PrivacyPage } from './pages/Privacy';
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -34,6 +36,7 @@ export function App() {
       <Routes>
         <Route path="/login" element={<GuestOnly><AuthPage mode="login" /></GuestOnly>} />
         <Route path="/signup" element={<GuestOnly><AuthPage mode="signup" /></GuestOnly>} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route element={<RequireAuth />}>
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
@@ -43,6 +46,7 @@ export function App() {
             <Route path="search" element={<SearchPage />} />
             <Route path="import" element={<ImportPage />} />
             <Route path="notes" element={<NotesPage />} />
+            <Route path="admin" element={<AdminPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

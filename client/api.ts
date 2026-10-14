@@ -124,6 +124,25 @@ async function request<T>(url: string, init: RequestInit & { json?: unknown } = 
 
 const timezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+export interface OwnerOverview {
+  totals: { users: number; folders: number; cards: number; reviews: number; neverStudied: number };
+  newUsers: { last24h: number; last7d: number; last30d: number };
+  activeUsers: { last24h: number; last7d: number; last30d: number };
+  series: { date: string; signups: number; active: number }[];
+  generatedAt: number;
+}
+export interface OwnerUser {
+  id: number;
+  email: string;
+  createdAt: number;
+  lastActive: number | null;
+  folders: number;
+  cards: number;
+  reviews: number;
+  reviewsLast7Days: number;
+  isYou: boolean;
+}
+
 export const api = {
   me: () => request<{ user: User | null }>('/auth/me'),
   signup: (email: string, password: string) =>
@@ -184,6 +203,10 @@ export const api = {
   notesGenerate: (form: FormData) => request<{ jobId: string }>('/notes/generate', { method: 'POST', body: form }),
   notesJob: (id: string) => request<NotesJob>(`/notes/jobs/${id}`),
   notesCancel: (id: string) => request<{ ok: boolean }>(`/notes/jobs/${id}`, { method: 'DELETE' }),
+
+  ownerMe: () => request<{ admin: boolean }>('/owner/me'),
+  ownerOverview: () => request<OwnerOverview>('/owner/overview'),
+  ownerUsers: () => request<{ users: OwnerUser[]; total: number; truncated: boolean }>('/owner/users'),
 
   calendar: (year: number, month: number) =>
     request<{ days: Record<number, number>; reviewedToday: number }>(`/stats/calendar?year=${year}&month=${month}`),

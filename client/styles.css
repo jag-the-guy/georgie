@@ -601,3 +601,60 @@ kbd { font-family: inherit; font-size: 11px; background: var(--color-surface); b
   .density-options { grid-template-columns: 1fr; }
   .review-sides { grid-template-columns: 1fr; }
 }
+
+/* ---------- Admin dashboard ---------- */
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.admin-stat { background: var(--color-surface-sunken); border-radius: 18px; padding: 16px 18px; }
+.admin-stat-label { display: flex; align-items: center; gap: 8px; color: var(--color-text-muted); font-size: 13px; }
+.admin-stat-value { font-size: 34px; font-weight: 600; letter-spacing: -.02em; margin: 6px 0 2px; line-height: 1.1; }
+.admin-stat-note { color: var(--color-text-faint); font-size: 12px; }
+.admin-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.admin-chart { margin: 0; background: var(--color-surface-sunken); border-radius: 18px; padding: 14px 18px 12px; }
+.admin-chart figcaption { font-size: 13px; margin-bottom: 8px; }
+.admin-chart svg { width: 100%; height: 110px; display: block; overflow: visible; }
+.admin-axis { stroke: var(--color-border); stroke-width: 1; }
+.admin-bar.primary { fill: var(--color-primary); }
+.admin-bar.good { fill: var(--state-review-fg); }
+.admin-tick { fill: var(--color-text-faint); font-size: 9px; }
+.admin-note { margin: 10px 2px 28px; }
+.admin-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.admin-search { width: 220px; height: 38px; padding: 0 12px; }
+.admin-sort { display: inline-flex; gap: 2px; padding: 3px; background: var(--color-surface-sunken); border-radius: 99px; }
+.admin-sort button { border: 0; background: none; color: var(--color-text-muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; font-size: 13px; }
+.admin-sort button.on { background: var(--color-primary-soft); color: var(--color-primary-hover); font-weight: 500; }
+.admin-table-wrap { overflow-x: auto; }
+.admin-table tbody tr { cursor: default; }
+.admin-table .num { text-align: right; white-space: nowrap; }
+.admin-table td { white-space: nowrap; }
+.admin-email { font-weight: 500; }
+.admin-badge { margin-left: 8px; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--color-primary-soft); color: var(--color-primary-hover); }
+.admin-badge.new { background: var(--state-review-bg); color: var(--state-review-fg); }
+
+/* ---------- Cookie notice and privacy page ---------- */
+.cookie-notice {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 900; width: min(640px, calc(100vw - 24px));
+  display: flex; align-items: center; gap: 14px; padding: 12px 14px 12px 16px; border-radius: 18px;
+  background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-lg); border: 1px solid var(--color-border);
+}
+.cookie-notice p { margin: 0; flex: 1; font-size: 13px; line-height: 1.5; color: var(--color-text-muted); }
+.cookie-notice p b { color: var(--color-text); font-weight: 500; }
+.cookie-notice a { color: var(--color-primary); text-decoration: underline; }
+.cookie-icon { color: var(--color-primary); flex-shrink: 0; }
+@media (max-width: 520px) { .cookie-notice { flex-wrap: wrap; } .cookie-notice p { flex-basis: 100%; } .cookie-notice .btn { width: 100%; } }
+.sidebar-legal { font-size: 12px; color: var(--color-text-faint); padding: 8px 14px 0; }
+.sidebar-legal:hover, .auth-footer-link:hover, .auth-legal a:hover { text-decoration: underline; }
+.auth-legal { text-align: center; font-size: 12px; color: var(--color-text-faint); margin: 14px 0 0; line-height: 1.5; }
+.auth-legal a { color: var(--color-primary); }
+.auth-footer-link { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--color-text-faint); }
+.legal-page { align-items: start; padding-top: 56px; padding-bottom: 80px; }
+.legal-card { width: 100%; max-width: 720px; background: var(--color-surface); border-radius: 28px; padding: 32px 36px 36px; box-shadow: var(--shadow); line-height: 1.65; }
+.legal-card h1 { font-size: 28px; margin-bottom: 4px; }
+.legal-card h2 { font-size: 17px; margin: 26px 0 6px; }
+.legal-card .sub { color: var(--color-text-faint); margin: 0 0 8px; }
+.legal-card p, .legal-card li { color: var(--color-text-muted); }
+.legal-card p b { color: var(--color-text); font-weight: 500; }
+.legal-card ul { padding-left: 20px; }
+.legal-card a { color: var(--color-primary); text-decoration: underline; }
+.legal-card code { background: var(--color-surface-sunken); border-radius: 6px; padding: 1px 6px; font-size: 13px; color: var(--color-text); }
+.legal-back { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text-muted); font-size: 13px; }
+.legal-back:hover { color: var(--color-text); }

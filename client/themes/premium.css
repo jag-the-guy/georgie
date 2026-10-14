@@ -350,3 +350,21 @@
 
 /* Mobile: the slide-in sidebar needs a solid panel */
 :root[data-design='premium'] .sidebar.open { background: var(--color-surface); }
+
+/* Admin dashboard, cookie notice, privacy page */
+:root[data-design='premium'] .admin-stat, :root[data-design='premium'] .admin-chart {
+  background: var(--fx-glass-2), color-mix(in srgb, var(--color-surface-sunken) 55%, transparent);
+  border: 1px solid var(--fx-edge-soft); box-shadow: inset 0 1px 0 var(--fx-highlight); border-radius: 22px;
+}
+:root[data-design='premium'] .admin-stat-value { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-size: 38px; }
+:root[data-design='premium'] .admin-bar { filter: drop-shadow(0 0 5px var(--fx-glow)); }
+:root[data-design='premium'] .admin-sort { background: color-mix(in srgb, var(--color-surface-sunken) 55%, transparent); border: 1px solid var(--fx-edge-soft); }
+:root[data-design='premium'] .admin-sort button.on { background: color-mix(in srgb, var(--color-primary) 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent); }
+:root[data-design='premium'] .admin-table tbody tr:hover td { background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+:root[data-design='premium'] .cookie-notice, :root[data-design='premium'] .legal-card {
+  background: var(--fx-glass), color-mix(in srgb, var(--color-surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(var(--fx-blur)) saturate(1.35); backdrop-filter: blur(var(--fx-blur)) saturate(1.35);
+  border: 1px solid var(--fx-edge); box-shadow: var(--shadow-lg), inset 0 1px 0 var(--fx-highlight);
+}
+:root[data-design='premium'] .cookie-notice { border-radius: 22px; }
+:root[data-design='premium'] .legal-card { border-radius: 32px; }

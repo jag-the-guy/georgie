@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useMatch, useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LayoutDashboard, LogOut, Plus, X } from 'lucide-react';
+import { Link, NavLink, useMatch, useNavigate } from 'react-router-dom';
+import { ChevronDown, ChevronRight, LayoutDashboard, LogOut, Plus, ShieldCheck, X } from 'lucide-react';
 import { useAuth, useFolders } from '../state';
 import type { FolderWithStats } from '../api';
 import { Logo } from './ui';
 import { ThemeToggle } from '../themes/ThemeToggle';
 
 export function Sidebar({ open, onClose, onNewFolder }: { open: boolean; onClose: () => void; onNewFolder: () => void }) {
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const { childrenOf } = useFolders();
 
   return (
@@ -38,10 +38,18 @@ export function Sidebar({ open, onClose, onNewFolder }: { open: boolean; onClose
         {childrenOf(null).length === 0 && <div className="muted small" style={{ padding: '4px 14px' }}>No folders yet</div>}
       </nav>
 
+      {isAdmin && (
+        <NavLink to="/admin" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <ShieldCheck size={18} /> Admin
+        </NavLink>
+      )}
       <ThemeToggle />
       <button className="nav-item" onClick={logout}>
         <LogOut size={18} /> Log out
       </button>
+      <Link to="/privacy" className="sidebar-legal">
+        Cookies &amp; privacy
+      </Link>
     </aside>
   );
 }

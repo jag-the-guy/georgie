@@ -139,6 +139,21 @@ The sun / monitor / moon control (sidebar bottom, and the corner of the login pa
 
 The earlier looks (the original lavender design and a lighter "New" design) are kept in git history: the `original-design` and `before-redesign` tags.
 
+## Owner dashboard (/admin)
+
+A page for the site owner showing **who signed up and who is actually using the app**: totals, new signups and active people over 24 hours / 7 days / 30 days, two 30-day charts, and a searchable, sortable list of everyone (email, joined, last active, status Active / Quiet / Not started, folders, cards, reviews). "Active" means they answered at least one card.
+
+- **Access:** log in normally. The **Admin** link and the page only exist for accounts whose email is listed in the `ADMIN_EMAILS` variable (comma-separated, e.g. `ADMIN_EMAILS=you@example.com`). For everyone else the page and its API answer "not found". With the variable unset, nobody can open it.
+- **Important:** emails aren't verified at sign-up, so only list an email that **already has an account** you control. Otherwise someone could register that address first.
+- **Privacy:** it only reports account-level facts. It never reads card text, folder names, notes or images (a test checks this).
+- It is separate from the `ADMIN_KEY` backup download, which still works as before.
+
+## Cookies and privacy
+
+The only cookie is the login cookie (`sid`: HttpOnly, SameSite=Lax, Secure when `SECURE_COOKIES=1`, 30 days). It is strictly necessary, so there is nothing optional to accept; instead a short notice at the bottom of the screen (until dismissed) says so and links to **/privacy**, a plain-language Cookies & privacy page that is also linked from the sign-up and login screens and the sidebar. Fonts are served from the app itself (no Google Fonts request), so there are no third-party requests either.
+
+Optional: set `VITE_CONTACT_EMAIL` (before building) to show a contact address on the privacy page for deletion requests. This is a plain-language notice, not legal advice: review it for the places your users live, and **update `client/pages/Privacy.tsx` before adding analytics, ads, or turning on the AI notes feature** (notes are sent to Anthropic when it's on).
+
 ## Keeping your users' data safe (hosting on Railway)
 
 Users' accounts, cards and images live in one folder (`DATA_DIR`), **not** in GitHub. Deploying new code replaces
